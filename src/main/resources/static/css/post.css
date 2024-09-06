@@ -142,6 +142,10 @@ hr {
   margin-bottom: 10px;
 }
 
+.comment-item {
+  margin: 20px 10px;
+}
+
 .comment-write {
   width: 100%;
   padding: 10px;
@@ -160,4 +164,17 @@ hr {
   border-radius: 5px;
   padding: 5px 10px;
   cursor: pointer;
+  min-width: 50px;
+}
+
+.update-comment-btn, .cancel-edit-btn , .edit-comment-btn, .delete-comment-btn {
+  background: #34495e;
+  opacity: 0.6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  min-width: 50px;
+  margin: 10px 5px;
 }

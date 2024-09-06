@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // const postId = getPostIdFromUrl(); // URL에서 postId를 가져오는 함수 (별도로 구현 필요)
   // const urlParams = new URLSearchParams(window.location.search);
   // const postId = urlParams.get('postId');
-  const postId = 3; // TODO 동적으로 변경
+  const postId = 1; // TODO 동적으로 변경
   fetchSystemComment(postId);
 });
 
@@ -30,7 +30,7 @@ function fetchSystemComment(postId) {
     return response.json();
   })
   .then(data => {
-    console.log('Received data:', JSON.stringify(data, null, 2)); // 데이터 구조를 자세히 로그에 출력
+    // console.log('Received data:', JSON.stringify(data, null, 2)); // 데이터 구조를 자세히 로그에 출력
     // console.log('Received data:', responseData); // 받아온 데이터를 로그에 출력
 
     // responseData = data.data;
@@ -44,12 +44,12 @@ function fetchSystemComment(postId) {
   .catch(error => {
     console.error('There was a problem fetching the system comment:', error);
     document.getElementById(
-        'system-comment').innerHTML = '<p class="system-comment-error">시스템 댓글을 불러오는 데 실패했습니다.</p>';
+        'system-comment').innerHTML = `<p class="system-comment-error">${error.errorMessage || '시스템 댓글을 불러오는 데 실패했습니다.'}</p>`;
   });
 }
 
 function displaySystemComment(system_comment) {
-  console.log('System comment data:', JSON.stringify(system_comment, null, 2)); // 시스템 댓글 데이터를 로그에 출력
+  // console.log('System comment data:', JSON.stringify(system_comment, null, 2)); // 시스템 댓글 데이터를 로그에 출력
 
   if (!system_comment) {
     console.error('System comment data is undefined or null');

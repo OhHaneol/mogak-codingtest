@@ -156,6 +156,10 @@ hr {
   border-radius: 5px;
 }
 
+.author {
+  margin-right: 10px;
+}
+
 .comment-save-btn {
   background: #34495e;
   opacity: 0.6;

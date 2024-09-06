@@ -45,6 +45,8 @@ public class CommentController {
         return ResponseDto.created(response);
     }
 
+    // TODO 수정 버튼 누르자마자 동일인물 검증하는 로직 추가하기 + 프론트에도
+
     @PutMapping(path = "/{commentId}")
     public ResponseEntity<?> updateComment(
             AuthUser user,
@@ -70,7 +72,6 @@ public class CommentController {
 
     @GetMapping(path = "/list")
     public ResponseEntity<?> getCommentList(
-            AuthUser user,
             @PathVariable("postId") Long postId
     ) {
         List<CommentResponse> responses = commentService.getCommentList(postId);

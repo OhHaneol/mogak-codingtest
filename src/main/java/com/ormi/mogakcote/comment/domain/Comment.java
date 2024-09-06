@@ -22,6 +22,7 @@ public class Comment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "varchar(1000)")
     private String content;
 
     @Column(name = "post_id")

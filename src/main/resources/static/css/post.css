@@ -124,6 +124,10 @@ hr {
   comment.html
  */
 
+.comment p {
+  margin-top: 30px;
+}
+
 .comment-form {
   margin-top: 20px;
   display: flex;

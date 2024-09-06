@@ -53,25 +53,6 @@ public class CommentService {
     }
 
     /**
-     * 답변 조회
-     */
-    @Transactional(readOnly = true)
-    public CommentResponse getComment(Long postId, Long commentId) {
-        throwsIfPostNotExist(postId);
-
-        Comment findComment = getCommentById(commentId);
-
-        String nickname = "tester"; // TODO user 정보 등록
-
-        return CommentResponse.toResponse(
-                findComment.getId(),
-                nickname,
-                findComment.getContent(),
-                findComment.getCreatedAt()
-        );
-    }
-
-    /**
      * 답변 수정
      */
     @Transactional

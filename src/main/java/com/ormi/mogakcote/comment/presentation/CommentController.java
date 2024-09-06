@@ -1,5 +1,7 @@
 package com.ormi.mogakcote.comment.presentation;
 
+import static com.ormi.mogakcote.common.CrossOriginConstants.CROSS_ORIGIN_ADDRESS;
+
 import com.ormi.mogakcote.auth.model.AuthUser;
 import com.ormi.mogakcote.comment.application.CommentService;
 import com.ormi.mogakcote.comment.dto.request.CommentRequest;
@@ -10,7 +12,9 @@ import com.ormi.mogakcote.rate_limiter.annotation.RateLimit;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
+@CrossOrigin(origins = CROSS_ORIGIN_ADDRESS)
 @RestController
 @RequestMapping(path = "/api/v1/posts/{postId}/comments")
 @RequiredArgsConstructor
@@ -37,16 +43,6 @@ public class CommentController {
     ) {
         var response = commentService.createComment(user, postId, request);
         return ResponseDto.created(response);
-    }
-
-    @GetMapping(path = "/{commentId}")
-    public ResponseEntity<?> getComment(
-            AuthUser user,
-            @PathVariable("postId") Long postId,
-            @PathVariable("commentId") Long commentId
-    ) {
-        var response = commentService.getComment(postId, commentId);
-        return ResponseDto.ok(response);
     }
 
     @PutMapping(path = "/{commentId}")

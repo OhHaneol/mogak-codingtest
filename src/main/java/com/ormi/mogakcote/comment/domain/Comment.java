@@ -24,7 +24,6 @@ public class Comment extends BaseEntity {
 
     private String content;
 
-
     @Column(name = "post_id")
     private Long postId;
 

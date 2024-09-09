@@ -52,6 +52,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostAlgorithmRepository postAlgorithmRepository;
     private final UserService userService;
+    private final NoticeRepository noticeRepository;
     private final UserBadgeService userBadgeService;
     private final UserRepository userRepository;
     private final ViewRepository viewRepository;
@@ -120,81 +121,111 @@ public class PostService {
                 post.getPostFlag().isBanned());
     }
 
-    @Transactional(readOnly = true)
-    public List<PostResponse> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
-        return posts.stream()
-                .map(
-                        post -> PostResponse.toResponse(
-                                post.getId(),
-                                post.getTitle(),
-                                post.getContent(),
-                                post.getPlatformId(),
-                                post.getProblemNumber(),
-                                getAlgorithmId(post.getId()),
-                                post.getLanguageId(),
-                                post.getCode(),
-                                post.getPostFlag().isPublic(),
-                                post.getReportFlag().isReportRequested(),
-                                post.getViewCnt(),
-                                post.getPostFlag().isBanned()))
-                .collect(Collectors.toList());
+  @Transactional(readOnly = true)
+  public List<PostResponse> getAllPosts() {
+    List<Post> posts = postRepository.findAll();
+    return posts.stream()
+        .map(
+            post ->
+                PostResponse.toResponse(
+                    post.getId(),
+                    post.getTitle(),
+                    post.getContent(),
+                    post.getPlatformId(),
+                    post.getProblemNumber(),
+                    getAlgorithmId(post.getId()),
+                    post.getLanguageId(),
+                    post.getCode(),
+                    post.getPostFlag().isPublic(),
+                    post.getReportFlag().isReportRequested(),
+                    post.getViewCnt(),
+                    post.getPostFlag().isBanned()))
+        .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public PostResponse updatePost(AuthUser user, Long postId, PostRequest request) {
+    Post post = getPostById(postId);
+    validateSameUser(post.getUserId(), user.getId());
+
+    post.update(
+        request.getTitle(),
+        request.getContent(),
+        request.getPlatformId(),
+        request.getLanguageId(),
+        request.getProblemNumber());
+
+    Post updatedPost = postRepository.save(post);
+
+    Long algorithmId = updatePostAlgorithm(postId, request.getAlgorithmId());
+
+    return PostResponse.toResponse(
+        updatedPost.getId(),
+        updatedPost.getTitle(),
+        updatedPost.getContent(),
+        updatedPost.getPlatformId(),
+        updatedPost.getProblemNumber(),
+        algorithmId,
+        updatedPost.getLanguageId(),
+        updatedPost.getCode(),
+        updatedPost.getPostFlag().isPublic(),
+        updatedPost.getReportFlag().isReportRequested(),
+        updatedPost.getViewCnt(),
+        updatedPost.getPostFlag().isBanned());
+  }
+
+  @Transactional
+  public SuccessResponse deletePost(AuthUser user, Long postId) {
+    Post post = getPostById(postId);
+
+    validateSameUser(post.getUserId(), user.getId());
+
+    postAlgorithmRepository.deleteByPostId(postId);
+    postRepository.deleteById(postId);
+
+    userService.updateActivity(user.getId(), "decreaseDay", post.getCreatedAt());
+
+    return new SuccessResponse("게시글 삭제 성공");
+  }
+
+  private Post buildAndSavePost(Long userId, PostRequest request) {
+    log.info("userId = {}", userId);
+    PostFlag postFlag =
+        PostFlag.builder().isPublic(request.isPublic()).isSuccess(false).isBanned(false).build();
+    ReportFlag reportFlag =
+        ReportFlag.builder()
+            .isReportRequested(request.isReportRequested())
+            .hasPreviousReportRequested(false)
+            .build();
+    Post post =
+        Post.builder()
+            .title(request.getTitle())
+            .content(request.getContent())
+            .platformId(request.getPlatformId())
+            .problemNumber(request.getProblemNumber())
+            .languageId(request.getLanguageId())
+            .code(request.getCode())
+            .postFlag(postFlag)
+            .reportFlag(reportFlag)
+            .viewCnt(0)
+            .voteCnt(0)
+            .userId(userId)
+            .build();
+    return postRepository.save(post);
+  }
+
+  private Post getPostById(Long postId) {
+    return postRepository
+        .findById(postId)
+        .orElseThrow(() -> new PostInvalidException(ErrorType.POST_NOT_FOUND_ERROR));
+  }
+
+  private static void validateSameUser(Long postUserId, Long userId) {
+    if (!postUserId.equals(userId)) {
+      throw new AuthInvalidException(ErrorType.NON_IDENTICAL_USER_ERROR);
     }
-
-    @Transactional
-    public PostResponse updatePost(AuthUser user, Long postId, PostRequest request) {
-        Post post = getPostById(postId);
-        validateSameUser(post.getUserId(), user.getId());
-
-        post.update(
-                request.getTitle(),
-                request.getContent(),
-                request.getPlatformId(),
-                request.getLanguageId(),
-                request.getProblemNumber());
-
-        Post updatedPost = postRepository.save(post);
-
-        Long algorithmId = updatePostAlgorithm(postId, request.getAlgorithmId());
-
-        return PostResponse.toResponse(
-                updatedPost.getId(),
-                updatedPost.getTitle(),
-                updatedPost.getContent(),
-                updatedPost.getPlatformId(),
-                updatedPost.getProblemNumber(),
-                algorithmId,
-                updatedPost.getLanguageId(),
-                updatedPost.getCode(),
-                updatedPost.getPostFlag().isPublic(),
-                updatedPost.getReportFlag().isReportRequested(),
-                updatedPost.getViewCnt(),
-                updatedPost.getPostFlag().isBanned());
-    }
-
-    @Transactional
-    public SuccessResponse deletePost(AuthUser user, Long postId) {
-        Post post = getPostById(postId);
-
-        validateSameUser(post.getUserId(), user.getId());
-
-        postAlgorithmRepository.deleteByPostId(postId);
-        postRepository.deleteById(postId);
-
-        userService.updateActivity(user.getId(), "decreaseDay", post.getCreatedAt());
-
-        return new SuccessResponse("게시글 삭제 성공");
-    }
-
-    // 검색 조건에 맞게 게시글 추출
-    @Transactional(readOnly = true)
-    public Page<PostSearchResponse> searchPost(AuthUser user, PostSearchRequest postSearchRequest) {
-        // 페이징을 위한 기본 설정 -> (보여줄 페이지, 한 페이지에 보여줄 데이터 수)
-        Pageable pageable = PageRequest.of(postSearchRequest.getPage() - 1, 8);
-
-        // 검색 및 정렬 기능 수행 후 설정된 pageable에 맞게 페이지 반환
-        return postRepository.searchPosts(user, postSearchRequest, pageable);
-    }
+  }
+    
 
     @Transactional
     public PostResponse convertBanned(Long id) {
@@ -289,4 +320,5 @@ public class PostService {
                 () -> new UserInvalidException(ErrorType.USER_NOT_FOUND_ERROR)
         );
     }
+
 }

@@ -40,6 +40,81 @@
       </div>
     </div>
   </div>
+  
+    <section id="notice-container">
+        <h3 class="notice-container-title">공지사항</h3>
+        <article class="notice-item" th:each="notice: ${notices}">
+            <a class="notice-item-link" th:href="@{|/api/v1/notice/${notice.noticeId}|}">
+                <p class="notice-title" th:text="${notice.title}">title</p>
+                <p class="notice-date" th:text="${notice.createdAt.toLocalDate}">date</p>
+            </a>
+        </article>
+    </section>
+    <a th:href="@{|/api/v1/posts|}" class="create-post-btn">게시글 작성</a>
+    <form class="post-search" th:action="@{/api/v1/posts/list}" method="get">
+        <label for="search-input"></label>
+        <input class="post-search-keyword" id="search-input" type="text" name="keyword" placeholder="검색"
+               th:value="${postSearchRequest.keyword != null} ? ${postSearchRequest.keyword}">
+    </form>
+    <div id="post-selector">
+        <div class="selector-options">
+            <div class="select-algorithm">
+                <button class="label"
+                        th:text="${postSearchRequest.algorithm == null} ?
+                        '알고리즘' : ${postSearchRequest.algorithm}">알고리즘
+                </button>
+                <ul class="selector-option hidden" id="algorithm">
+                    <li value="null">선택</li>
+                    <li value="Bellman-ford">Bellman-ford</li>
+                    <li value="BFS">BFS</li>
+                    <li value="DFS">DFS</li>
+                    <li value="BruteForce">BruteForce</li>
+                    <li value="DP">DP</li>
+                    <li value="Dijkstra's">Dijkstra's</li>
+                    <li value="Graph">Graph</li>
+                    <li value="Greedy">Greedy</li>
+                    <li value="Hash">Hash</li>
+                    <li value="Heap">Heap</li>
+                    <li value="Stack">Stack</li>
+                    <li value="Queue">Queue</li>
+                    <li value="String">String</li>
+                    <li value="Sort">Sort</li>
+                    <li value="SQL">SQL</li>
+                    <li value="Tree">Tree</li>
+                    <li value="Recursion">Recursion</li>
+                </ul>
+            </div>
+            <div class="select-language">
+                <button class="label"
+                        th:text="${postSearchRequest.language == null} ?
+                        '작성 언어' : ${postSearchRequest.language}">작성 언어
+                </button>
+                <ul class="selector-option hidden" id="language">
+                    <li value="null">선택</li>
+                    <li value="Java">Java</li>
+                    <li value="Python">Python</li>
+                    <li value="C">C</li>
+                    <li value="C++">C++</li>
+                    <li value="C#">C#</li>
+                    <li value="Go">Go</li>
+                    <li value="JavaScript">Javascript</li>
+                    <li value="Kotlin">Kotlin</li>
+                    <li value="Ruby">Ruby</li>
+                    <li value="Swift">Swift</li>
+                    <li value="SQL">SQL</li>
+                </ul>
+            </div>
+            <div class="select-checkSuccess">
+                <button class="label"
+                        th:text="${postSearchRequest.checkSuccess} ? '성공' : '무관'">
+                    코드 결과
+                </button>
+                <ul class="selector-option hidden" id="checkSuccess">
+                    <li value="null">선택</li>
+                    <li value="false">무관</li>
+                    <li value="true">성공</li>
+                </ul>
+            </div>
 
   <section id="notice-container">
     <h3 class="notice-container-title">공지사항</h3>
@@ -147,25 +222,25 @@
 
     </div>
   </div>
-  <main id="post-list">
-    <p th:if="${posts.isEmpty()}" id="no-post">검색 조건과 일치하는 게시글이 없습니다.</p>
-    <article class="post-item" th:each="post: ${posts}">
-      <a th:href="@{|/api/v1/post/${post.id}|}">
-        <h2 class="post-title" th:text="${post.title}">title</h2>
-        <!-- user nickname 받아오기 -->
-        <p class="post-author" th:text="${post.nickname}">nickname</p>
-        <p class="post-date" th:text="${post.createdAt.toLocalDate()}">date</p>
-        <p class="post-content" th:text="${#strings.abbreviate(post.content,300)}">content</p>
-        <!-- 문제 내용 받아오기 -->
-        <div class="post-algorithm">
-          <span class="post-algorithm-hashtag">#Algorithm</span>
-          <span class="post-algorithm-hashtag" th:each="algorithm: ${post.algorithms}"
-                th:if="${algorithm != null}" th:text="'#'+${algorithm}"></span>
-        </div>
-        <p class="view-count" th:text="${post.viewCnt}+' views'">29 views</p>
-      </a>
-    </article>
-  </main>
+    <main id="post-list">
+        <p th:if="${posts.isEmpty()}" id="no-post">검색 조건과 일치하는 게시글이 없습니다.</p>
+        <article class="post-item" th:each="post: ${posts}">
+            <a th:href="@{|/api/v1/posts/${post.id}|}">
+                <h2 class="post-title" th:text="${post.title}">title</h2>
+                <!-- user nickname 받아오기 -->
+                <p class="post-author" th:text="${post.nickname}">nickname</p>
+                <p class="post-date" th:text="${post.createdAt.toLocalDate()}">date</p>
+                <p class="post-content" th:text="${#strings.abbreviate(post.content,300)}">content</p>
+                <!-- 문제 내용 받아오기 -->
+                <div class="post-algorithm">
+                    <span class="post-algorithm-hashtag">#Algorithm</span>
+                    <span class="post-algorithm-hashtag" th:each="algorithm: ${post.algorithms}"
+                          th:if="${algorithm != null}" th:text="'#'+${algorithm}"></span>
+                </div>
+                <p class="view-count" th:text="${post.viewCnt}+' views'">29 views</p>
+            </a>
+        </article>
+    </main>
 </div>
 
 

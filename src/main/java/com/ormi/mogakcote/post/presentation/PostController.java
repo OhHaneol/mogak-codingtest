@@ -90,7 +90,7 @@ public class PostController {
   @DeleteMapping("/{postId}")
   public ResponseEntity<SuccessResponse> deletePost(
       AuthUser user, @PathVariable(name = "postId") Long postId) {
-    SuccessResponse response = postService.deletePost(user, postId);
+    var response = postService.deletePost(user, postId);
     return ResponseEntity.ok(response);
   }
 }

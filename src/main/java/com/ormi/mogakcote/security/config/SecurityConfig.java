@@ -46,10 +46,14 @@ public class SecurityConfig {
             auth.requestMatchers("/api/users/register", "/api/signup/**", "/api/users/**").permitAll();
 
             // 메인
-            auth.requestMatchers(HttpMethod.GET, "/api/*/post/**").permitAll();
+            auth.requestMatchers(HttpMethod.GET, "/api/*/posts/**").permitAll();
 
             // 관리자
-            auth.requestMatchers("/api/*/admin", "/api/*/admin/**").hasRole("ADMIN");
+//            auth.requestMatchers("/api/*/admin", "/api/*/admin/**").hasRole("ADMIN");
+            auth.requestMatchers("/api/*/admin").hasRole("ADMIN");
+
+            // 목록
+            auth.requestMatchers("/api/*/admin/*/list").permitAll();
 
             // 공지사항
             auth.requestMatchers(HttpMethod.GET, "/api/*/notice/*").permitAll();
@@ -73,8 +77,8 @@ public class SecurityConfig {
             auth.requestMatchers(HttpMethod.GET, "/api/*/posts/*/system-comments").permitAll();
 
             // 게시글
-            auth.requestMatchers(HttpMethod.GET, "/api/*/post/*").permitAll();
-            auth.requestMatchers("/api/*/post", "/api/*/post/*").hasRole("USER");
+            auth.requestMatchers(HttpMethod.GET, "/api/*/posts/**").permitAll();
+            auth.requestMatchers("/api/*/posts", "/api/*/posts/*").hasRole("USER");
 
             // 회원가입
             auth.requestMatchers("/api/*/signup/**", "/api/*/users/**").permitAll();
@@ -82,8 +86,14 @@ public class SecurityConfig {
             // 인증/권한
             auth.requestMatchers("/api/*/auth/**").anonymous();
 
+            // 헬스 체크
+            auth.requestMatchers("/health").anonymous();
+
             // 마이페이지
             auth.requestMatchers("/api/*/users", "/api/*/users/**").hasRole("USER");
+
+            auth.requestMatchers("/css/**", "/js/**", "/img/**").permitAll(); //정적파일
+
             // 나머지 요청은 인증 필요
             auth.anyRequest().authenticated();
         });

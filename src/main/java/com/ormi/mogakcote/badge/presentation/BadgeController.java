@@ -29,11 +29,12 @@ public class BadgeController {
 
 	private final BadgeService badgeService;
 
-	@GetMapping(path="/list")
+	@GetMapping
 	public ResponseEntity<?> getBadges()
 	{
 		List<BadgeResponse> response = badgeService.getBadges();
 		return ResponseDto.ok(response);
+
 	}
 
 	@GetMapping(path="/{badgeId}")
@@ -41,6 +42,7 @@ public class BadgeController {
 		@PathVariable("badgeId") Long badgeId)
 	{
 		BadgeResponse response = badgeService.getBadgeById(badgeId);
+
 		return ResponseDto.ok(response);
 	}
 
